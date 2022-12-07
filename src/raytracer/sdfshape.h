@@ -3,6 +3,7 @@
 #include "raytracer/intersection.h"
 #include "raytracer/ray.h"
 #include <glm/glm.hpp>
+#include <memory>
 #include <optional>
 
 class SDFShape {
