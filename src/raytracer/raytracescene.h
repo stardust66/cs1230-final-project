@@ -1,7 +1,7 @@
 #pragma once
 
 #include "camera/camera.h"
-#include "raytracer/intersect.h"
+#include "raytracer/sdfshape.h"
 #include "utils/scenedata.h"
 #include "utils/sceneparser.h"
 #include <memory>
@@ -29,7 +29,7 @@ class RayTraceScene {
     // The getter of the shared pointer to the camera instance of the scene
     const Camera& getCamera() const;
 
-    const std::vector<std::unique_ptr<Intersect>>& getShapes() const;
+    const std::vector<std::unique_ptr<SDFShape>>& getShapes() const;
 
     const std::vector<SceneLightData>& getLights() const;
 
@@ -39,5 +39,5 @@ class RayTraceScene {
     int h;
     SceneGlobalData globalData;
     std::vector<SceneLightData> lights;
-    std::vector<std::unique_ptr<Intersect>> shapes;
+    std::vector<std::unique_ptr<SDFShape>> shapes;
 };

@@ -1,27 +1,44 @@
 #include "sdfshape.h"
 #include <array>
 #include <iostream>
+#include <limits>
 
-SDFShape::SDFShape(SceneMaterial material) : Intersect(material) {}
+SDFShape::SDFShape(SceneMaterial material) : material(material) {}
 
 const int MAX_RAYMARCH_ITERATION = 1000;
-const float RAYMARCH_STEP_RATIO = 0.01;
-const float RAYMARCH_THRESHOLD = 1;
-std::optional<Intersection> SDFShape::intersect(const Ray& ray) const {
-    auto currentPosition = ray.origin;
+const float RAYMARCH_HIT_THRESHOLD = 0.001;
+const float RAYMARCH_MAX_DISTANCE = 1000;
+std::optional<Intersection>
+intersectSDFShapes(const Ray& ray, const std::vector<std::unique_ptr<SDFShape>>& shapes) {
+    float t = 0;
     for (auto iterationCount = 0; iterationCount < MAX_RAYMARCH_ITERATION; ++iterationCount) {
-        auto distanceToClosestPoint = sdf(currentPosition);
+        auto currentPosition = ray.getAt(t);
 
-        if (distanceToClosestPoint < RAYMARCH_THRESHOLD) {
-            return Intersection{.t = glm::distance(currentPosition, ray.origin),
-                                .normal = computeSdfNormal(currentPosition),
-                                .position = currentPosition,
-                                .material = &material};
+        // Get minimum distance from all sdfs
+        float minDistance = std::numeric_limits<float>().max();
+        const SDFShape* hitShape = nullptr;
+        for (const auto& shape : shapes) {
+            auto distanceToShape = shape->sdf(currentPosition);
+            if (distanceToShape < minDistance) {
+                minDistance = distanceToShape;
+                hitShape = shape.get();
+            }
         }
 
-        // March along the ray's direction by a proportion of the computed distance, so we don't
-        // overshoot
-        currentPosition += RAYMARCH_STEP_RATIO * distanceToClosestPoint * ray.direction;
+        if (minDistance < RAYMARCH_HIT_THRESHOLD) {
+            return Intersection{
+                .t = t,
+                .normal = hitShape->computeSdfNormal(currentPosition),
+                .position = currentPosition,
+                .material = &hitShape->material,
+            };
+        }
+
+        if (minDistance > RAYMARCH_MAX_DISTANCE) {
+            return std::nullopt;
+        }
+
+        t += minDistance;
     }
 
     // No intersection found

@@ -1,18 +1,21 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include "raytracer/intersect.h"
 #include "raytracer/intersection.h"
 #include "raytracer/ray.h"
+#include <glm/glm.hpp>
+#include <optional>
 
-class SDFShape : public Intersect {
-    public:
-        SDFShape(SceneMaterial material);
+class SDFShape {
+  public:
+    SDFShape(SceneMaterial material);
+    virtual ~SDFShape(){};
 
-        std::optional<Intersection> intersect(const Ray& ray) const override;
+    virtual float sdf(const glm::vec4& point) const = 0;
 
-    private:
-        glm::vec4 computeSdfNormal(const glm::vec4& point) const;
+    glm::vec4 computeSdfNormal(const glm::vec4& point) const;
 
-        virtual float sdf(const glm::vec4& point) const = 0;
+    SceneMaterial material;
 };
+
+std::optional<Intersection>
+intersectSDFShapes(const Ray& ray, const std::vector<std::unique_ptr<SDFShape>>& shapes);

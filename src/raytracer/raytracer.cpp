@@ -19,18 +19,7 @@ void RayTracer::render(RGBA* imageData, const RayTraceScene& scene) {
         for (int j = 0; j < height; j++) {
             auto ray = makeRay(i, j, width, height, camera);
 
-            // Find intersection with smallest t
-            std::optional<Intersection> intersection;
-            for (auto& shape : scene.getShapes()) {
-                auto shapeIntersection = shape->intersect(ray);
-                if (!intersection) {
-                    intersection = shapeIntersection;
-                    continue;
-                }
-                if (shapeIntersection && *shapeIntersection <= *intersection) {
-                    intersection = shapeIntersection;
-                }
-            }
+            auto intersection = intersectSDFShapes(ray, scene.getShapes());
 
             if (intersection) {
                 auto directionToCamera =

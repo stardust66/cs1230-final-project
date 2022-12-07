@@ -44,9 +44,6 @@ add_executable(${PROJECT_NAME}
   ./src/utils/util.h
   ./src/utils/util.cpp
 
-  ./src/raytracer/intersect.h
-  ./src/raytracer/intersect.cpp
-
   ./src/raytracer/intersection.h
   ./src/raytracer/intersection.cpp
   ./src/raytracer/phong.h
