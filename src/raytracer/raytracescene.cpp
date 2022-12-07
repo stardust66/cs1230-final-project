@@ -1,5 +1,6 @@
 #include "raytracescene.h"
 #include "raytracer/shapes/sphere.h"
+#include "raytracer/shapes/torus.h"
 #include "utils/sceneparser.h"
 
 namespace {
@@ -11,7 +12,8 @@ const SceneMaterial RED_MATERIAL = {
 
 std::vector<std::unique_ptr<SDFShape>> makeShapes() {
     auto result = std::vector<std::unique_ptr<SDFShape>>{};
-    result.emplace_back(std::make_unique<Sphere>(glm::vec4{0, 0, 0, 1}, 0.25, RED_MATERIAL));
+    result.emplace_back(std::make_unique<Sphere>(glm::vec4{0, 0.25, 0, 1}, 0.25, RED_MATERIAL));
+    result.emplace_back(std::make_unique<Torus>(0.5, 0.1, RED_MATERIAL));
     return result;
 }
 } // namespace
