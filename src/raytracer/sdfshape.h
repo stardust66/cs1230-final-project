@@ -20,3 +20,7 @@ class SDFShape {
 
 std::optional<Intersection>
 intersectSDFShapes(const Ray& ray, const std::vector<std::unique_ptr<SDFShape>>& shapes);
+
+std::tuple<float, const SDFShape*>
+getMinDistanceFromSDFs(const glm::vec4& point,
+                       const std::vector<std::unique_ptr<SDFShape>>& shapes);

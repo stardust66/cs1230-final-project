@@ -2,6 +2,7 @@
 #include <array>
 #include <iostream>
 #include <limits>
+#include <tuple>
 
 SDFShape::SDFShape(SceneMaterial material) : material(material) {}
 
@@ -15,15 +16,7 @@ intersectSDFShapes(const Ray& ray, const std::vector<std::unique_ptr<SDFShape>>&
         auto currentPosition = ray.getAt(t);
 
         // Get minimum distance from all sdfs
-        float minDistance = std::numeric_limits<float>().max();
-        const SDFShape* hitShape = nullptr;
-        for (const auto& shape : shapes) {
-            auto distanceToShape = shape->sdf(currentPosition);
-            if (distanceToShape < minDistance) {
-                minDistance = distanceToShape;
-                hitShape = shape.get();
-            }
-        }
+        auto [minDistance, hitShape] = getMinDistanceFromSDFs(currentPosition, shapes);
 
         if (minDistance < RAYMARCH_HIT_THRESHOLD) {
             return Intersection{
@@ -57,4 +50,20 @@ glm::vec4 SDFShape::computeSdfNormal(const glm::vec4& point) const {
         normal[i] = sdf(point + EPSILON_VECTORS[i]) - sdf(point - EPSILON_VECTORS[i]);
     }
     return glm::normalize(normal);
+}
+
+std::tuple<float, const SDFShape*>
+getMinDistanceFromSDFs(const glm::vec4& point,
+                       const std::vector<std::unique_ptr<SDFShape>>& shapes) {
+    // Get minimum distance from all sdfs
+    float minDistance = std::numeric_limits<float>().max();
+    const SDFShape* hitShape = nullptr;
+    for (const auto& shape : shapes) {
+        auto distanceToShape = shape->sdf(point);
+        if (distanceToShape < minDistance) {
+            minDistance = distanceToShape;
+            hitShape = shape.get();
+        }
+    }
+    return {minDistance, hitShape};
 }
