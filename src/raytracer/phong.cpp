@@ -65,6 +65,45 @@ glm::vec4 getQImageColorAt(const QImage& image, int x, int y) {
     return glm::vec4{(float)rawImage[startOffset] / 255, (float)rawImage[startOffset + 1] / 255,
                      (float)rawImage[startOffset + 2] / 255, 1};
 }
+
+namespace SoftShadow {
+const auto RAYMARCH_HIT_THRESHOLD = 0.001;
+
+// Factor that controls how soft the shadow is. K = 2 is very soft, K = 128 is completely hard.
+const auto K = 8;
+
+const float EPSILON = 0.01;
+
+/**
+ * Preliminary implementation of soft shadows.
+ * TODO: Consider tuning EPSILON based on shape, since some shapes have details that are closely
+ * bunched together, making self-shadowing more likely. Maybe this can be the same as the hit
+ * threshold for each shape.
+ */
+float computePenumbraFactor(const RayTraceScene& scene, const Intersection& intersection,
+                            const glm::vec4& directionToLight, float maxT) {
+    float penumbraFactor = 1;
+
+    auto shadowRay = Ray{.origin = intersection.position + EPSILON * directionToLight,
+                         .direction = directionToLight};
+    for (float t = 0; t < maxT;) {
+        auto currentPosition = shadowRay.getAt(t);
+
+        auto [minDistance, hitShape] = getMinDistanceFromSDFs(currentPosition, scene.getShapes());
+
+        // If hit, light is completely blocked
+        if (minDistance < RAYMARCH_HIT_THRESHOLD) {
+            return 0;
+        }
+
+        // Otherwise, see how much light is blocked
+        penumbraFactor = fminf(penumbraFactor, K * minDistance / t);
+        t += minDistance;
+    }
+
+    return penumbraFactor;
+}
+} // namespace SoftShadow
 } // namespace
 
 glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
@@ -90,12 +129,6 @@ glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
 
         auto directionFromLight = getDirectionFromLight(light, intersection.position);
 
-        auto shadowRay = Ray{.origin = intersection.position - 0.01f * directionFromLight,
-                             .direction = -directionFromLight};
-        if (intersectSDFShapes(shadowRay, scene.getShapes())) {
-            continue;
-        }
-
         // Add the diffuse term, where the color is blended with a texture
         auto diffuse =
             globalData.kd * material.cDiffuse * fmaxf(glm::dot(normal, -directionFromLight), 0);
@@ -108,7 +141,16 @@ glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
 
         auto attenuationFactor = getAttenuation(light, intersection.position);
         auto spotLightFalloff = getSpotLightFalloff(light, directionFromLight);
-        illumination += light.color * spotLightFalloff * attenuationFactor * (diffuse + specular);
+
+        // penumbraFactor gives us soft shadows
+        auto penumbraFactor = SoftShadow::computePenumbraFactor(
+            scene, intersection, -directionFromLight,
+            light.type == LightType::LIGHT_DIRECTIONAL
+                ? 1000
+                : glm::distance(intersection.position, light.pos));
+
+        illumination += penumbraFactor * light.color * spotLightFalloff * attenuationFactor *
+                        (diffuse + specular);
     }
 
     return illumination;
