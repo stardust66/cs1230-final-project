@@ -67,7 +67,7 @@ glm::vec4 getQImageColorAt(const QImage& image, int x, int y) {
 }
 } // namespace
 
-glm::vec4 phong(const Intersection& intersection, const RayTraceScene& scene,
+glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
                 const glm::vec4& directionToCamera, const RayTracer::Config& config,
                 int reflectionDepth) {
     const auto& globalData = scene.getGlobalData();
@@ -89,6 +89,12 @@ glm::vec4 phong(const Intersection& intersection, const RayTraceScene& scene,
         }
 
         auto directionFromLight = getDirectionFromLight(light, intersection.position);
+
+        auto shadowRay = Ray{.origin = intersection.position - 0.01f * directionFromLight,
+                             .direction = -directionFromLight};
+        if (intersectSDFShapes(shadowRay, scene.getShapes())) {
+            continue;
+        }
 
         // Add the diffuse term, where the color is blended with a texture
         auto diffuse =

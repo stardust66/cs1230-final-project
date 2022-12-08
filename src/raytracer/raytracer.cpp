@@ -27,7 +27,7 @@ void RayTracer::render(RGBA* imageData, const RayTraceScene& scene) {
                     auto directionToCamera =
                         glm::normalize(camera.getPosition() - intersection->position);
                     imageData[j * width + i] =
-                        toRGBA(phong(*intersection, scene, directionToCamera, m_config));
+                        toRGBA(shade(*intersection, scene, directionToCamera, m_config));
                 }
             }
         });

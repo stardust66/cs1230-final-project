@@ -7,6 +7,6 @@
 #include <unordered_map>
 
 // Calculates the RGBA of a pixel from intersection infomation and globally-defined coefficients
-glm::vec4 phong(const Intersection& intersection, const RayTraceScene& scene,
+glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
                 const glm::vec4& directionToCamera, const RayTracer::Config& config,
                 int reflectionDepth = 0);
