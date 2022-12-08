@@ -58,6 +58,12 @@ add_executable(${PROJECT_NAME}
   ./src/raytracer/shapes/sphere.cpp
   ./src/raytracer/shapes/torus.h
   ./src/raytracer/shapes/torus.cpp
+  ./src/raytracer/shapes/mandelbulb.h
+  ./src/raytracer/shapes/mandelbulb.cpp
+  ./src/raytracer/shapes/plane.h
+  ./src/raytracer/shapes/plane.cpp
+  ./src/raytracer/shapes/testshape.h
+  ./src/raytracer/shapes/testshape.cpp
 )
 
 # GLM: this creates its library and allows you to `#include "glm/..."`
