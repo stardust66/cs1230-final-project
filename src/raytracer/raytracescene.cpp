@@ -24,11 +24,11 @@ const SceneMaterial GRAY_MATERIAL = {
 
 std::vector<std::unique_ptr<SDFShape>> makeShapes() {
     auto result = std::vector<std::unique_ptr<SDFShape>>{};
-    // result.emplace_back(std::make_unique<Sphere>(glm::vec4{0, 0.25, 0, 1}, 0.25, RED_MATERIAL));
-    // result.emplace_back(std::make_unique<Sphere>(glm::vec4{1, 0, 0, 1}, 0.25, RED_MATERIAL));
-    // result.emplace_back(std::make_unique<Sphere>(glm::vec4{0, 0, 1, 1}, 0.25, RED_MATERIAL));
-    // result.emplace_back(std::make_unique<Torus>(0.5, 0.1, RED_MATERIAL));
-    // result.emplace_back(std::make_unique<Mandelbulb>(RED_MATERIAL));
+    //result.emplace_back(std::make_unique<Sphere>(glm::vec4{0, 0.25, 0, 1}, 0.25, RED_MATERIAL));
+    //result.emplace_back(std::make_unique<Sphere>(glm::vec4{1, 0, 0, 1}, 0.25, RED_MATERIAL));
+    //result.emplace_back(std::make_unique<Sphere>(glm::vec4{0, 0, 1, 1}, 0.25, RED_MATERIAL));
+    //result.emplace_back(std::make_unique<Torus>(0.5, 0.1, RED_MATERIAL));
+    //result.emplace_back(std::make_unique<Mandelbulb>(RED_MATERIAL));
     result.emplace_back(std::make_unique<TestShape>(RED_MATERIAL));
     result.emplace_back(std::make_unique<Plane>(glm::vec3{-5, 5, -0.25}, glm::vec3{5, 5, -0.25},
                                                 glm::vec3{5, -5, -0.25}, glm::vec3{-5, -5, -0.25},
