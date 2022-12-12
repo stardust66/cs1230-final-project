@@ -4,11 +4,12 @@ Mandelbulb::Mandelbulb(SceneMaterial material) : SDFShape(material) {}
 
 const float POWER = 3;
 float Mandelbulb::sdf(const glm::vec4& p) const {
-    auto pVec3 = glm::vec3(p);
-    auto z = pVec3;
+    // Convert y-up to z-up
+    auto pZUp = glm::vec3{p.x, p.z, p.y};
+    auto z = pZUp;
     float dr = 1.0;
     float r = 0.0;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 30; i++) {
         r = length(z);
         if (r > 4.0)
             break;
@@ -25,7 +26,7 @@ float Mandelbulb::sdf(const glm::vec4& p) const {
 
         // Convert back to cartesian coordinates
         z = zr * glm::vec3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
-        z += pVec3;
+        z += pZUp;
     }
 
     return 0.5 * log(r) * r / dr;

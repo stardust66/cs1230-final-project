@@ -62,6 +62,8 @@ add_executable(${PROJECT_NAME}
   ./src/raytracer/shapes/mandelbulb.cpp
   ./src/raytracer/shapes/plane.h
   ./src/raytracer/shapes/plane.cpp
+  ./src/raytracer/shapes/sierpinski.h
+  ./src/raytracer/shapes/sierpinski.cpp
   ./src/raytracer/shapes/testshape.h
   ./src/raytracer/shapes/testshape.cpp
 )
