@@ -12,6 +12,7 @@ const SceneMaterial RED_MATERIAL = {
     .cDiffuse = {1, 0, 0, 1},
     .cSpecular = {1, 1, 1, 1},
     .shininess = 25,
+    .cReflective = glm::vec4{0.75},
 };
 
 const float GREY_FACTOR = 0.1;

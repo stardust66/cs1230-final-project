@@ -103,25 +103,9 @@ float computePenumbraFactor(const RayTraceScene& scene, const Intersection& inte
 
     return penumbraFactor;
 }
-//glm::vec3 startReflecting(const Intersection& intersection) {
-
-//    auto reflectionDir =
-//    auto ray = Ray{.origin = intersection.position + EPSILON * directionToLight,
-//            .direction = directionToLight};
-
-//    auto intersection = intersectSDFShapes(ray, scene.getShapes());
-
-//    if (intersection) {
-//        auto directionToCamera =
-//            glm::normalize(camera.getPosition() - intersection->position);
-//        imageData[j * width + i] =
-//            toRGBA(shade(*intersection, scene, directionToCamera, m_config));
-//    }
-
-
-//}
-
 } // namespace SoftShadow
+
+const int MAX_REFLECTIONS = 1;
 } // namespace
 
 glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
@@ -167,30 +151,25 @@ glm::vec4 shade(const Intersection& intersection, const RayTraceScene& scene,
                 ? 1000
                 : glm::distance(intersection.position, light.pos));
 
-        int maxReflections = 1;
-        glm::vec4 reflection = glm::vec4(0,0,0,0);
-        if (reflectionDepth<maxReflections) {
-            const float EPSILON = 0.01;
-            auto reflectionDir = glm::normalize(glm::reflect(-directionToCamera,normal));
-            auto reflectionRay = Ray{.origin = intersection.position + EPSILON * reflectionDir,
-                    .direction = reflectionDir};
-            //this intersect method takes in ray which points where we're shooting the ray
-            auto intersectionR = intersectSDFShapes(reflectionRay, scene.getShapes());
-
-            if (intersectionR) {
-                auto directionToOgPt =
-                    glm::normalize(intersection.position - intersectionR->position);
-                reflection =
-                    shade(*intersectionR, scene, directionToOgPt, config,reflectionDepth+1);
-            }
-        }
-
         illumination += penumbraFactor * light.color * spotLightFalloff * attenuationFactor *
-                        (diffuse + specular) + reflection;
-//        illumination[0] = std::clamp(illumination[0],0.f,0.1f);
-//        illumination[1] = std::clamp(illumination[1],0.f,0.1f);
-//        illumination[2] = std::clamp(illumination[2],0.f,0.1f);
-//        illumination[3] = std::clamp(illumination[3],0.f,0.1f);
+                        (diffuse + specular);
+    }
+
+    if (config.enableReflection && glm::length(material.cReflective) > 0 &&
+        reflectionDepth < MAX_REFLECTIONS) {
+        const float EPSILON = 0.01;
+        auto reflectionDir = glm::normalize(glm::reflect(-directionToCamera, normal));
+        auto reflectionRay = Ray{.origin = intersection.position + EPSILON * reflectionDir,
+                                 .direction = reflectionDir};
+        // this intersect method takes in ray which points where we're shooting the ray
+        auto intersectionR = intersectSDFShapes(reflectionRay, scene.getShapes());
+
+        if (intersectionR) {
+            auto directionToOgPt = glm::normalize(intersection.position - intersectionR->position);
+            auto reflection =
+                shade(*intersectionR, scene, directionToOgPt, config, reflectionDepth + 1);
+            illumination += material.cReflective * reflection;
+        }
     }
 
     return illumination;
